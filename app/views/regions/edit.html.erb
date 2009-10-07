@@ -1,0 +1,12 @@
+<h1>Editing region</h1>
+
+<% form_for(@region) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @region %> |
+<%= link_to 'Back', regions_path %>
