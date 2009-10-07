@@ -1,14 +1,14 @@
 class StoriesController < ApplicationController
   # GET /stories
   # GET /stories.xml
-  def index
-    @stories = Story.all
+  #def index
+  #  @stories = Story.all
 
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @stories }
-    end
-  end
+  #  respond_to do |format|
+  #    format.html # index.html.erb
+  #    format.xml  { render :xml => @stories }
+  #  end
+  #end
 
   # GET /stories/1
   # GET /stories/1.xml
@@ -23,19 +23,19 @@ class StoriesController < ApplicationController
 
   # GET /stories/new
   # GET /stories/new.xml
-  def new
-    @story = Story.new
+  #def new
+  #  @story = Story.new
 
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @story }
-    end
-  end
+  #  respond_to do |format|
+  #    format.html # new.html.erb
+  #    format.xml  { render :xml => @story }
+  #  end
+  #end
 
-  # GET /stories/1/edit
-  def edit
-    @story = Story.find(params[:id])
-  end
+  ## GET /stories/1/edit
+  #def edit
+  #  @story = Story.find(params[:id])
+  #end
 
   # POST /stories
   # POST /stories.xml
