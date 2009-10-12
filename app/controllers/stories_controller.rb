@@ -39,16 +39,60 @@ class StoriesController < ApplicationController
 
   # POST /stories
   # POST /stories.xml
+
   def create
-    @story = Story.new(params[:story])
+    language             = Language.find_by_code(params[:story][:language_code])
+    params[:story].delete(:language_code)
+    params[:story][:language_id] = language.id
+
+    authors         = []
+    if params[:story][:author_names].is_a?(Hash)
+      author_names = params[:story][:author_names].keys.collect{|k| params[:story][:author_names][k] }
+      authors      = Author.create_or_find(author_names)
+    end
+    params[:story].delete(:author_names)
+
+    @story = Story.new(
+      :title             => params[:story][:title],
+      :url               => params[:story][:url],
+      :language_id       => params[:story][:language_id],
+      :feed_id           => params[:story][:feed_id],
+      :source_id         => params[:story][:source_id],
+      :is_opinion        => (params[:story][:is_opinion] == 'true'),
+      :is_blog           => (params[:story][:is_blog] == 'true'),
+      :is_video          => (params[:story][:is_video] == 'true'),
+      :subscription_type => params[:story][:subscription_type],
+      :thumbnail_exists  => ('story[thumbnail_exists]'  == 'true'),
+      :created_at        => params[:story][:created_at]
+    )
+    authors.each{|a| @story.authors << a}
+    if params[:story][:content]
+      @story.story_content = StoryContent.new(:body => params[:story][:content])
+    end
+    thumbnail = nil
+    if params[:story][:thumbnail_exists] == 'true'
+      thumbnail =  Thumbnail.new(:content_type => params[:story][:thumbnail_content_type],
+                                 :height       => params[:story][:thumbnail_height],
+                                 :width        => params[:story][:thumbnail_width],
+                                 :source_id    => params[:story][:source_id], 
+                                 :download_url => params[:story][:thumbnail_download_url], 
+                                 :available_in_storage    => false)
+      unless thumbnail.save
+        thumbnail.errors.each do |atr,msg|
+          @story.errors.add("thumbnail_#{atr}", msg)
+        end
+      else
+        @story.thumbnail = thumbnail
+      end
+    end
 
     respond_to do |format|
-      if @story.save
-        flash[:notice] = 'Story was successfully created.'
-        format.html { redirect_to(@story) }
+      if @story.errors.blank? and @story.save
+        #flash[:notice] = 'Story was successfully created.'
+        #format.html { redirect_to(@story) }
         format.xml  { render :xml => @story, :status => :created, :location => @story }
       else
-        format.html { render :action => "new" }
+        #format.html { render :action => "new" }
         format.xml  { render :xml => @story.errors, :status => :unprocessable_entity }
       end
     end
@@ -56,30 +100,30 @@ class StoriesController < ApplicationController
 
   # PUT /stories/1
   # PUT /stories/1.xml
-  def update
-    @story = Story.find(params[:id])
+  #def update
+  #  @story = Story.find(params[:id])
 
-    respond_to do |format|
-      if @story.update_attributes(params[:story])
-        flash[:notice] = 'Story was successfully updated.'
-        format.html { redirect_to(@story) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @story.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
+  #  respond_to do |format|
+  #    if @story.update_attributes(params[:story])
+  #      flash[:notice] = 'Story was successfully updated.'
+  #      format.html { redirect_to(@story) }
+  #      format.xml  { head :ok }
+  #    else
+  #      format.html { render :action => "edit" }
+  #      format.xml  { render :xml => @story.errors, :status => :unprocessable_entity }
+  #    end
+  #  end
+  #end
 
   # DELETE /stories/1
   # DELETE /stories/1.xml
-  def destroy
-    @story = Story.find(params[:id])
-    @story.destroy
+  #def destroy
+  #  @story = Story.find(params[:id])
+  #  @story.destroy
 
-    respond_to do |format|
-      format.html { redirect_to(stories_url) }
-      format.xml  { head :ok }
-    end
-  end
+  #  respond_to do |format|
+  #    format.html { redirect_to(stories_url) }
+  #    format.xml  { head :ok }
+  #  end
+  #end
 end
