@@ -9,8 +9,10 @@ class Source < ActiveRecord::Base
   def reassociate_region
     self.regions.delete_all
     region = Region.find_by_id( region_id )
-    self.source_regions.create( :region_id => region.id )
-    self.regions(true)
+    if region
+      self.source_regions.create( :region_id => region.id )
+      self.regions(true)
+    end
   end
   
 end
