@@ -52,6 +52,7 @@ class CategoriesController < ApplicationController
   # POST /categories
   # POST /categories.xml
   def create
+    return if render_head_ok_if_exists?( Category, params[:category][:id] )
     @category = Category.new(params[:category])
     @category.id = params[:category][:id]
 

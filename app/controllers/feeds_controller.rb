@@ -40,6 +40,7 @@ class FeedsController < ApplicationController
   # POST /feeds
   # POST /feeds.xml
   def create
+    return if render_head_ok_if_exists?( Feed, params[:feed][:id] )
     @language = Language.find_by_code(params[:feed][:language_code])
     params[:feed].delete(:language_code)
     params[:feed][:language_id] =  @language.id

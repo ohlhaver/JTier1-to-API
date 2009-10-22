@@ -52,6 +52,7 @@ class RegionsController < ApplicationController
   # POST /regions
   # POST /regions.xml
   def create
+    return if render_head_ok_if_exists?( Region, params[:region][:id] )
     @region = Region.new(params[:region])
     @region.id = params[:region][:id]
     respond_to do |format|

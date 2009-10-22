@@ -40,6 +40,7 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.xml
   def create
+    return if render_head_ok_if_exists?( Source, params[:source][:id] )
     @source    = Source.new(params[:source])
     @source.id = params[:source][:id]
 

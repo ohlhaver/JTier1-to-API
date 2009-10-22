@@ -7,4 +7,16 @@ class ApplicationController < ActionController::Base
 
   # Scrub sensitive parameters from your log
   # filter_parameter_logging :password
+  protected
+  
+  def render_head_ok_if_exists?( model, id )
+    if model.exists?( id )
+      respond_to do | format |
+        format.xml { head :ok }
+      end
+      return true
+    end
+    return false
+  end
+  
 end
