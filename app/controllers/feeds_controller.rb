@@ -97,7 +97,7 @@ class FeedsController < ApplicationController
   # POST /associate_category/1
   # POST /associate_category/1.xml
   def associate_category
-    @feed     = Source.find(params[:id])
+    @feed     = Feed.find(params[:id])
     @category = Category.find(params[:category][:id])
     
     respond_to do |format|
@@ -112,7 +112,7 @@ class FeedsController < ApplicationController
   # POST /disassociate_category/1
   # POST /disassociate_category/1.xml
   def disassociate_category
-     @feed     = Source.find(params[:id])
+     @feed     = Feed.find(params[:id])
      @category = Category.find(params[:category][:id])
     
     respond_to do |format|
