@@ -1,3 +1,5 @@
+ram:
+  path: /Users/ram/Workspace/jurnalo/JModels
 development:
   path: /home/jrath/Work/NewJurnalo/JModels 
 production:

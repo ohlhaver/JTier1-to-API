@@ -53,7 +53,7 @@ class RegionsController < ApplicationController
   # POST /regions.xml
   def create
     @region = Region.new(params[:region])
-
+    @region.id = params[:region][:id]
     respond_to do |format|
       if @region.save
         flash[:notice] = 'Region was successfully created.'
