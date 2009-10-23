@@ -9,8 +9,9 @@ class ApplicationController < ActionController::Base
   # filter_parameter_logging :password
   protected
   
-  def render_head_ok_if_exists?( model, id )
-    if model.exists?( id )
+  def render_head_ok_if_exists?( model, id, options = {} )
+    conditions = options[:field] ? { options[:field] => id } : id
+    if model.exists?( conditions  )
       respond_to do | format |
         format.xml { head :ok }
       end

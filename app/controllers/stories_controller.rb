@@ -41,15 +41,14 @@ class StoriesController < ApplicationController
   # POST /stories.xml
 
   def create
-    language             = Language.find_by_code(params[:story][:language_code])
+    return if params[:story][:id] && render_head_ok_if_exists?( Story, params[:story][:id], :field => :jcrawl_story_id )
+    
+    language             = Language.find_by_code( params[:story][:language_code] )
     params[:story].delete(:language_code)
-    params[:story][:language_id] = language.id
-
-    authors         = []
-    if params[:story][:author_names].is_a?(Hash)
-      author_names = params[:story][:author_names].keys.collect{|k| params[:story][:author_names][k] }
-      authors      = Author.create_or_find(author_names)
-    end
+    params[:story][:language_id] = language.id if language
+    
+    author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
+    authors = Author.create_or_find( author_names )
     params[:story].delete(:author_names)
 
     @story = Story.new(
@@ -62,22 +61,22 @@ class StoriesController < ApplicationController
       :is_blog           => (params[:story][:is_blog] == 'true'),
       :is_video          => (params[:story][:is_video] == 'true'),
       :subscription_type => params[:story][:subscription_type],
-      :thumbnail_exists  => ('story[thumbnail_exists]'  == 'true'),
+      :thumbnail_exists => !params[:story][:image].blank?,
       :created_at        => params[:story][:created_at]
     )
+    
+    @story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
+    
     authors.each{|a| @story.authors << a}
-    if params[:story][:content]
-      @story.story_content = StoryContent.new(:body => params[:story][:content])
-    end
-    thumbnail = nil
-    if params[:story][:thumbnail_exists] == 'true'
-      thumbnail =  Thumbnail.new(:content_type => params[:story][:thumbnail_content_type],
-                                 :height       => params[:story][:thumbnail_height],
-                                 :width        => params[:story][:thumbnail_width],
-                                 :source_id    => params[:story][:source_id], 
-                                 :download_url => params[:story][:thumbnail_download_url], 
-                                 :available_in_storage    => false)
-      unless thumbnail.save
+    
+    @story.story_content = StoryContent.new(:body => params[:story][:content])
+    
+    unless params[:story][:image].blank?
+      thumbnail = Thumbnail.create( params[:story][:image].merge( 
+        :source_id => params[:story][:source_id],
+        :available_in_storage => false ) 
+      )
+      if thumbnail.new_record?
         thumbnail.errors.each do |atr,msg|
           @story.errors.add("thumbnail_#{atr}", msg)
         end
@@ -85,7 +84,7 @@ class StoriesController < ApplicationController
         @story.thumbnail = thumbnail
       end
     end
-
+    
     respond_to do |format|
       if @story.errors.blank? and @story.save
         #flash[:notice] = 'Story was successfully created.'
