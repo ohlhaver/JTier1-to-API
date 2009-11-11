@@ -40,10 +40,9 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
 end
 
-j_models_config = YAML.load_file("#{RAILS_ROOT}/config/j_models.yml")
-$: << "#{j_models_config[RAILS_ENV]['path']}"
-require 'j_models'
+JModelConfig = YAML.load_file( "#{RAILS_ROOT}/config/j_models.yml" )
+load "#{JModelConfig[RAILS_ENV]['path']}/config/environment.rb"
 
-Dir["#{RAILS_ROOT}/app/models/*.rb"].each do |m|
-  require m
+Dir["#{RAILS_ROOT}/app/models/*.rb"].each do |model_file|
+  load model_file
 end
