@@ -5,12 +5,12 @@ ram:
   timeout: 5000
 
 development:
-    adapter: mysql
-    encoding: utf8
-    database: temp_db
-    username: root
-    password: root
-    socket: /var/run/mysqld/mysqld.sock
+  adapter: mysql
+  encoding: utf8
+  database: tier2_db_dev
+  username: root
+  password: 
+  host: localhost
 
 
 # Warning: The database defined as "test" will be erased and
