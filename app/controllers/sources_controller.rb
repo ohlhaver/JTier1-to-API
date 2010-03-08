@@ -59,7 +59,11 @@ class SourcesController < ApplicationController
   # PUT /sources/1
   # PUT /sources/1.xml
   def update
-    @source = Source.find(params[:id])
+    @source = Source.find(:first, :conditions => { :id => params[:id] })
+    unless @source
+      create
+      return
+    end
 
     respond_to do |format|
       if @source.update_attributes(params[:source])

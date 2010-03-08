@@ -63,7 +63,11 @@ class FeedsController < ApplicationController
   # PUT /feeds/1
   # PUT /feeds/1.xml
   def update
-    @feed = Feed.find(params[:id])
+    @feed = Feed.find(:first, :conditions => { :id => params[:id] })
+    unless @feed
+      create
+      return
+    end
 
     if params[:feed][:language_code]
       @language = Language.find_by_code(params[:feed][:language_code])
