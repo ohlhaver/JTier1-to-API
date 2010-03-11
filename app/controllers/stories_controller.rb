@@ -52,7 +52,7 @@ class StoriesController < ApplicationController
     params[:story].delete(:author_names)
 
     @story = Story.new(
-      :title             => params[:story][:title],
+      :title             => JCore::Clean.headline( params[:story][:title] || '' ),
       :url               => params[:story][:url],
       :language_id       => params[:story][:language_id],
       :feed_id           => params[:story][:feed_id],
