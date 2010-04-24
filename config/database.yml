@@ -24,10 +24,10 @@ test:
 
 
 production:
-    adapter: mysql
-    encoding: utf8
-    database: tier2_db_prod
-    username: jurnalo
-    password: jp4t2db
-    host: localhost
-    socket: /var/lib/mysql/mysql.sock
+  adapter: mysql
+  encoding: utf8
+  database: tier2_db_prod
+  username: jurnalo
+  password: jp4t2db
+  host: 10.176.228.50
+  reconnect: true
