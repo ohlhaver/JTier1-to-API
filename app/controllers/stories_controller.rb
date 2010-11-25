@@ -47,10 +47,6 @@ class StoriesController < ApplicationController
     params[:story].delete(:language_code)
     params[:story][:language_id] = language.id if language
     
-    author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
-    authors = Author.create_or_find( author_names )
-    params[:story].delete(:author_names)
-
     @story = Story.new(
       :title             => JCore::Clean.headline( params[:story][:title] || '' ),
       :url               => params[:story][:url],
@@ -61,36 +57,38 @@ class StoriesController < ApplicationController
       :is_blog           => (params[:story][:is_blog] == 'true'),
       :is_video          => (params[:story][:is_video] == 'true'),
       :subscription_type => params[:story][:subscription_type],
-      :thumbnail_exists => !params[:story][:image].blank?,
-      :created_at        => params[:story][:created_at]
+      :thumbnail_exists  => !params[:story][:image].blank?,
+      :created_at        => params[:story][:created_at],
+      :jcrawl_story_id   => params[:story][:id],
+      :story_content     => StoryContent.new(:body => params[:story][:content])
     )
-    
-    @story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
-    
-    authors.each{|a| @story.authors << a}
-    
-    @story.story_content = StoryContent.new(:body => params[:story][:content])
-    
-    unless params[:story][:image].blank?
-      thumbnail = Thumbnail.create( params[:story][:image].merge( 
-        :source_id => params[:story][:source_id],
-        :available_in_storage => false ) 
-      )
-      if thumbnail.new_record?
-        thumbnail.errors.each do |atr,msg|
-          @story.errors.add("thumbnail_#{atr}", msg)
+    if @story.save
+      #@story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
+      author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
+      authors = Author.create_or_find( author_names )
+      params[:story].delete(:author_names)
+      authors.each{|a| @story.authors << a}
+      unless params[:story][:image].blank?
+        thumbnail = Thumbnail.create( params[:story][:image].merge( 
+          :source_id => params[:story][:source_id],
+          :available_in_storage => false ) 
+        )
+        if thumbnail.new_record?
+         thumbnail.errors.each do |atr,msg|
+           @story.errors.add("thumbnail_#{atr}", msg)
+         end
+        else
+          @story.thumbnail = thumbnail
         end
-      else
-        @story.thumbnail = thumbnail
       end
     end
-    
     respond_to do |format|
-      if @story.errors.blank? and @story.save
+      if @story.errors.blank? && @story.save
         #flash[:notice] = 'Story was successfully created.'
         #format.html { redirect_to(@story) }
         format.xml  { render :xml => @story, :status => :created, :location => @story }
       else
+        #@story.destroy unless @story.new_record?
         #format.html { render :action => "new" }
         format.xml  { render :xml => @story.errors, :status => :unprocessable_entity }
       end
