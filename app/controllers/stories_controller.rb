@@ -59,11 +59,11 @@ class StoriesController < ApplicationController
       :subscription_type => params[:story][:subscription_type],
       :thumbnail_exists  => !params[:story][:image].blank?,
       :created_at        => params[:story][:created_at],
-      #:jcrawl_story_id   => params[:story][:id],
+      :jcrawl_story_id   => params[:story][:id],
       :story_content     => StoryContent.new(:body => params[:story][:content])
     )
-    if @story.save
-      @story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
+   # if @story.save
+      #@story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
       author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
       authors = Author.create_or_find( author_names )
       params[:story].delete(:author_names)
@@ -81,7 +81,7 @@ class StoriesController < ApplicationController
           @story.thumbnail = thumbnail
         end
       end
-    end
+    #end
     respond_to do |format|
       if @story.errors.blank? && @story.save
         #flash[:notice] = 'Story was successfully created.'
