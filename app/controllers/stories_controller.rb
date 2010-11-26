@@ -62,13 +62,7 @@ class StoriesController < ApplicationController
       :jcrawl_story_id   => params[:story][:id],
       :story_content     => StoryContent.new(:body => params[:story][:content])
     )
-    if @story.save
-      #@story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
-      author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
-      authors = Author.create_or_find( author_names )
-      params[:story].delete(:author_names)
-      authors.each{|a| @story.authors << a}
-    end
+
       unless params[:story][:image].blank?
         thumbnail = Thumbnail.create( params[:story][:image].merge( 
           :source_id => params[:story][:source_id],
@@ -81,6 +75,14 @@ class StoriesController < ApplicationController
         else
           @story.thumbnail = thumbnail
         end
+      end
+      
+      if @story.save
+        #@story.jcrawl_story_id = params[:story][:id] # associate the id with the jcrawl_story_id field
+        author_names = params[:story][:author_names].is_a?(Hash) ? params[:story][:author_names].values : Array( params[:story][:author_names] )
+        authors = Author.create_or_find( author_names )
+        params[:story].delete(:author_names)
+        authors.each{|a| @story.authors << a}
       end
     
     respond_to do |format|
